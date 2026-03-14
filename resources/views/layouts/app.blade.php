@@ -52,6 +52,13 @@
                     </svg> Usuarios
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('materials*') ? 'active' : '' }}" href="{{ route('materials.index') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-group') }}"></use>
+                    </svg> Materials
+                </a>
+            </li>
         </ul>
         
         <div class="sidebar-footer border-top d-none d-md-flex">     

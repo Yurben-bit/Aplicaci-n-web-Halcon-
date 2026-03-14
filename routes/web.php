@@ -15,3 +15,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // 4. Resource Routes for Users
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
+
+// 5. Resource Routes for Meterials
+Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
