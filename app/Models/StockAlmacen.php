@@ -22,6 +22,18 @@ class StockAlmacen extends Model
     public $timestamps = true;
 
     /**
+     * Casting de atributos.
+     * Esto asegura que al acceder a estas propiedades, Laravel las convierta 
+     * automáticamente al tipo de dato correcto.
+     */
+    protected $casts = [
+        'materialesId'  => 'integer',
+        'cantidadStock' => 'integer',
+        'stockMinimo'   => 'integer',
+        'stockMaximo'   => 'integer',
+    ];
+
+    /**
      * Relación: Un registro de stock pertenece a un Material.
      */
     public function material(): BelongsTo
