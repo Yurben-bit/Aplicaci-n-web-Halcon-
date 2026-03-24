@@ -16,5 +16,11 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // 4. Resource Routes for Users
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
 
-// 5. Resource Routes for Meterials
+// 5. Resource Routes for Materials
 Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
+
+// 6. Resource Routes for stockAlmacenes
+Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::class)->middleware('auth');
+
+// 7. Resource Routes for Providers
+Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
