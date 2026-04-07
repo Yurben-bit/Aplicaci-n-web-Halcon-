@@ -19,7 +19,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('materials', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id(); 
             $table->integer('clave_material')->unique();
             $table->text('descripcion_material');
             $table->integer('precio_unitario');

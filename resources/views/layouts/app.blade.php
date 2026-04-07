@@ -37,14 +37,28 @@
         </div>
         
         <ul class="sidebar-nav" data-coreui="navigation" data-simplebar>
-            <!-- Nav content -->
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url('/') }}">
-                    <svg class="nav-icon">
-                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-speedometer') }}"></use>
-                    </svg> Dashboard
-                </a>
-            </li>
+        <!-- Dashboard dinámico, para todos los roles -->
+            @if(auth()->user()->hasRole('Cliente'))
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('cliente*') ? 'active' : '' }}" href="{{ route('cliente.dashboard') }}">
+                        <svg class="nav-icon">
+                            <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-user') }}"></use>
+                        </svg> Mi Panel
+                    </a>
+                </li>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
+                        <svg class="nav-icon">
+                            <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-speedometer') }}"></use>
+                        </svg> Dashboard
+                    </a>
+                </li>
+            @endif
+
+
+            <!-- Usuarios: solo Admin -->
+            @if(auth()->user()->hasRole('Admin'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('users*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                     <svg class="nav-icon">
@@ -52,13 +66,63 @@
                     </svg> Usuarios
                 </a>
             </li>
+            @endif
+
+            <!-- Materials: Admin o Almacén -->
+            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Almacen'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('materials*') ? 'active' : '' }}" href="{{ route('materials.index') }}">
                     <svg class="nav-icon">
-                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-group') }}"></use>
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-layers') }}"></use>
                     </svg> Materials
                 </a>
             </li>
+            @endif
+
+            <!-- Roles: solo Admin -->
+            @if(auth()->user()->hasRole('Admin'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('roles*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-shield-alt') }}"></use>
+                    </svg> Roles
+                </a>
+            </li>
+            @endif
+
+            <!-- Providers: Admin o Compras -->
+            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Compras'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('providers*') ? 'active' : '' }}" href="{{ route('providers.index') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-truck') }}"></use>
+                    </svg> Proveedores
+                </a>
+            </li>
+            @endif
+
+            <!-- Ventas: Admin o Ventas -->
+            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Ventas'))
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('ventas.dashboard') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-cart') }}"></use>
+                    </svg> Ventas
+                </a>
+            </li>
+            @endif
+
+            <!-- Ruta: Admin o Ruta -->
+            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Ruta'))
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('ruta.dashboard') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-walk') }}"></use>
+                    </svg> Ruta
+                </a>
+            </li>
+            @endif
+
         </ul>
         
         <div class="sidebar-footer border-top d-none d-md-flex">     
