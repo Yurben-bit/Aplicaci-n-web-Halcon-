@@ -24,3 +24,6 @@ Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::c
 
 // 7. Resource Routes for Providers
 Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
+
+// 8. Resource Routes for Orders
+Route::resource('orders', App\Http\Controllers\OrderController::class)->middleware('auth');
