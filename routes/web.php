@@ -21,6 +21,7 @@ use App\Http\Controllers\RutaController;
 use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\CompraController;
+use App\Http\Controllers\OrderController;
 
 // Rutas para cada rol
 
@@ -122,3 +123,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 });
 
 // Route::resource('roles', App\Http\Controllers\RoleController::class)->middleware('auth');
+
+// 9. Resource Routes for Orders
+Route::middleware(['auth'])->group(function () {
+    Route::resource('orders', OrderController::class);
+});
