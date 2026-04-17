@@ -21,6 +21,7 @@ use App\Http\Controllers\RutaController;
 use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\CompraController;
+use App\Http\Controllers\OrderController;
 
 // Rutas para cada rol
 
@@ -98,20 +99,20 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
 // 5. Resource Routes for Materials
 
-Route::middleware(['auth', 'role:Admin|Almacen'])->group(function () {
+Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
     Route::resource('materials', MaterialController::class);
 });
 // Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
 
 // 6. Resource Routes for stockAlmacenes
-Route::middleware(['auth', 'role:Admin|Almacen'])->group(function () {
+Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
     Route::resource('stockAlmacenes', StockAlmacenController::class);
 });
 // Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::class)->middleware('auth');
 
 // 7. Resource Routes for Providers
 
-Route::middleware(['auth', 'role:Admin|Compras'])->group(function () {
+Route::middleware(['auth', 'role:Admin,Compras'])->group(function () {
     Route::resource('providers', ProviderController::class);
 });
 // Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
@@ -122,3 +123,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 });
 
 // Route::resource('roles', App\Http\Controllers\RoleController::class)->middleware('auth');
+
+// 9. Resource Routes for Orders
+Route::middleware(['auth'])->group(function () {
+    Route::resource('orders', OrderController::class);
+});

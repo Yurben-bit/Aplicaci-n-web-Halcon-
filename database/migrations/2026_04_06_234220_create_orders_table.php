@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('description'); // Descripción del pedido
             
             // Requisito: Estados (Pendiente, En ruta, Entregado)
-            $table->enum('status', ['pending', 'in_route', 'delivered'])->default('pending');
+            $table->enum('status', ['pendiente', 'en_ruta', 'entregado'])->default('pendiente');
             
             // Requisito: Ruta de la fotografía de evidencia
             $table->string('evidence_path')->nullable(); 

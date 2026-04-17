@@ -90,6 +90,18 @@
             </li>
             @endif
 
+            <!-- Orders: Admin, Ventas o Ruta -->
+            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Ventas') || auth()->user()->hasRole('Ruta'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('orders*') ? 'active' : '' }}" href="{{ route('orders.index') }}">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('assets/icons/sprites/free.svg#cil-list') }}"></use>
+                    </svg> Pedidos
+                </a>
+            </li>
+            @endif
+
+
             <!-- Providers: Admin o Compras -->
             @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Compras'))
             <li class="nav-item">
