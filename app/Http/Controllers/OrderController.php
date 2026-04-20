@@ -56,7 +56,7 @@ class OrderController extends Controller
 
         return redirect()->back()->with('success', 'Estado actualizado correctamente.');
     }
-
+    
     /**
      * Opcional: Eliminar orden.
      */
