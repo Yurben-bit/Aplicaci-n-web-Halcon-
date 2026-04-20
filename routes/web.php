@@ -128,3 +128,6 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('orders', OrderController::class);
 });
+
+use App\Http\Controllers\ArticuloController;
+Route::resource('articulos', ArticuloController::class);
