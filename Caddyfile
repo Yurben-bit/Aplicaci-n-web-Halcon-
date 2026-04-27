@@ -1,5 +1,5 @@
-:80
-
-root * /var/www/html/public
-php_fastcgi php:9000
-file_server
+:80 {
+    root * /var/www/html/public
+    php_fastcgi unix//run/php-fpm.sock
+    file_server
+}
