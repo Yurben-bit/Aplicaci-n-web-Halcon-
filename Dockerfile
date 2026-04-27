@@ -1,17 +1,28 @@
-FROM heroku/heroku:22-build
+FROM php:8.2-apache
 
-# Instalar extensiones PHP necesarias
-RUN install-php-extensions bcmath
+# Instalar extensiones necesarias
+RUN docker-php-ext-install pdo pdo_mysql bcmath
 
-# Copiar archivos
-COPY . /app
-WORKDIR /app
+# Habilitar mod_rewrite para Laravel
+RUN a2enmod rewrite
+
+# Copiar archivos del proyecto
+COPY . /var/www/html
+
+# Establecer directorio de trabajo
+WORKDIR /var/www/html
+
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader
 
+# Dar permisos a storage y bootstrap
+RUN chown -R www-data:www-data storage bootstrap/cache
+
 # Exponer puerto
-EXPOSE 8080
+EXPOSE 80
 
 # Comando de inicio
-CMD ["vendor/bin/heroku-php-apache2", "public/"]
+CMD ["apache2-foreground"]
