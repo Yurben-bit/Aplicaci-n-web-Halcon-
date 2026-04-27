@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema necesarias para Composer y extensiones
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -10,26 +10,25 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql bcmath zip
 
-# Habilitar mod_rewrite para Laravel
+# Habilitar mod_rewrite
 RUN a2enmod rewrite
 
-# Copiar archivos del proyecto
+# Copiar solo el código de Laravel
 COPY . /var/www/html
 
-# Establecer directorio de trabajo
 WORKDIR /var/www/html
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Dar permisos a storage y bootstrap
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Exponer puerto
-EXPOSE 80
+# Cambiar Apache al puerto dinámico de Railway
+RUN sed -i "s/80/${PORT}/g" /etc/apache2/ports.conf
+RUN sed -i "s/80/${PORT}/g" /etc/apache2/sites-enabled/000-default.conf
 
-# Comando de inicio
-CMD ["apache2-foreground"]
+EXPOSE 8080
+
+CMD ["apache2ctl", "-D", "FOREGROUND"]
