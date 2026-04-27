@@ -1,14 +1,19 @@
-# PHP-FPM
-FROM php:8.2-fpm AS php
+# -----------------------------
+# 1) PHP-FPM + Composer
+# -----------------------------
+FROM php:8.2-fpm-alpine AS php
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     git \
     unzip \
     libzip-dev \
     libpng-dev \
-    libonig-dev \
     libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql bcmath zip
+    oniguruma-dev \
+    curl-dev \
+    supervisor
+
+RUN docker-php-ext-install pdo pdo_mysql bcmath zip
 
 WORKDIR /var/www/html
 
@@ -20,37 +25,16 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 
-# Caddy server
-FROM caddy:2-alpine
+# -----------------------------
+# 2) FINAL STAGE: CADDY + PHP-FPM
+# -----------------------------
+FROM alpine:3.19
 
-# Instalar PHP y supervisord en la imagen final
-RUN apk add --no-cache \
-    php8 \
-    php8-fpm \
-    php8-mysqli \
-    php8-pdo_mysql \
-    php8-session \
-    php8-zip \
-    php8-opcache \
-    php8-tokenizer \
-    php8-xml \
-    php8-mbstring \
-    php8-curl \
-    php8-fileinfo \
-    php8-json \
-    php8-phar \
-    php8-dom \
-    php8-gd \
-    php8-simplexml \
-    supervisor
+RUN apk add --no-cache caddy supervisor php82 php82-fpm php82-pdo_mysql php82-mbstring php82-xml php82-session php82-tokenizer php82-zip php82-curl php82-fileinfo php82-json php82-dom php82-gd
 
-# Copiar Caddyfile
-COPY Caddyfile /etc/caddy/Caddyfile
-
-# Copiar el código de Laravel desde la etapa php
 COPY --from=php /var/www/html /var/www/html
 
-# Copiar configuración de supervisord
+COPY Caddyfile /etc/caddy/Caddyfile
 COPY supervisord.conf /etc/supervisord.conf
 
 EXPOSE 80
