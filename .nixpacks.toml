@@ -1,2 +1,6 @@
 [phases.setup]
-nixPkgs = ["php82Extensions.bcmath"]
+nixPkgs = [
+  "php82Extensions.bcmath",
+  "php82Extensions.mbstring",
+  "php82Extensions.pdo_mysql"
+]
