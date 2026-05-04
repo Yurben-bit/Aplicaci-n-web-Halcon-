@@ -45,8 +45,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
-    $request->user()->currentAccessToken()->delete();
+    $token = $request->user()->currentAccessToken();
 
+    if ($token) {
+        $token->delete();
+    }
     return response()->json([
         'message' => 'Sesión cerrada correctamente'
     ]);
