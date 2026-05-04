@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use App\Models\User;
-use App\Http\Controllers\Api\AuthController;
 
 Route::post('/login', function (Request $request) {
     $request->validate([
@@ -23,7 +23,7 @@ Route::post('/login', function (Request $request) {
     $user->load('roles');
 
     // Obtener el primer rol
-    $role = $user->roles->first()->nombreRol ?? null;
+    $role = $user->roles->first()?->nombreRol;
 
     // Crear token Sanctum
     $token = $user->createToken('frontend-token')->plainTextToken;
