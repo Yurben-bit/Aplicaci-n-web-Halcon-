@@ -46,14 +46,23 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Relación con el modelo Role.
+     * Importante: Asegúrate de que el modelo se llame 'Role' (con R mayúscula)
+     */
     public function roles()
     {
-        return $this->belongsToMany(role::class, 'role_user');
+        // Usamos el nombre de la clase correctamente y la tabla pivote
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 
-    // Verificar si el usuario tiene un rol específico
+    /**
+     * Verificar si el usuario tiene un rol específico.
+     * Este método es el que usan tus rutas en web.php
+     */
     public function hasRole($roleName)
-    {        
+    {        
+        // Buscamos en la relación si existe el nombre del rol
         return $this->roles()->where('nombreRol', $roleName)->exists();
     }
 }
