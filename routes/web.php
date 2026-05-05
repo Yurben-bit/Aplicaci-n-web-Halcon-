@@ -1,20 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
-/*
-
-Roles que se deben enrutar:
-
-nombreRol => Admin
-nombreRol => Ventas
-nombreRol => Compras
-nombreRol => Almacen
-nombreRol => Ruta
-nombreRol => Cliente
-
-*/
-
+// Importación de Controladores Previos
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\RutaController;
@@ -22,8 +11,51 @@ use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\StockAlmacenController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ArticuloController;
+use App\Http\Controllers\HomeController;
 
-// Rutas para cada rol
+// Importación de NUEVOS Controladores (Rama miguelvirus)
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\EvidenciaFotoController;
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de Autenticación y Raíz
+|--------------------------------------------------------------------------
+*/
+
+Auth::routes();
+
+Route::get('/', function () {
+    if (!auth()->check()) {
+        return redirect('/login');
+    }
+    
+    $user = auth()->user();
+
+    // Redirección por Roles
+    if ($user->hasRole('Admin')) return redirect()->route('admin.dashboard');
+    if ($user->hasRole('Ventas')) return redirect()->route('ventas.dashboard');
+    if ($user->hasRole('Compras')) return redirect()->route('compras.dashboard');
+    if ($user->hasRole('Almacen')) return redirect()->route('almacen.dashboard');
+    if ($user->hasRole('Ruta')) return redirect()->route('ruta.dashboard');
+    if ($user->hasRole('Cliente')) return redirect()->route('cliente.dashboard');
+    
+    return redirect()->route('home');
+})->middleware('auth');
+
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Dashboards por Rol
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -49,85 +81,50 @@ Route::middleware(['auth', 'role:Compras'])->group(function () {
     Route::get('/compras/dashboard', [CompraController::class, 'dashboard'])->name('compras.dashboard');
 });
 
-use App\Http\Controllers\MaterialController;
-use App\Http\Controllers\StockAlmacenController;
-use App\Http\Controllers\ProviderController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
+/*
+|--------------------------------------------------------------------------
+| Módulo de Pedidos y Evidencias (Metodología MSR)
+|--------------------------------------------------------------------------
+*/
 
+Route::middleware(['auth'])->group(function () {
+    
+    // Solo Ventas y Admin pueden crear y ver pedidos
+    Route::middleware(['role:Admin,Ventas'])->group(function () {
+        Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
+        Route::post('/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
+    });
 
-// 1. Ruta Raíz: Apunta a nuestra nueva interfaz de CoreUI
-Route::get('/', function () {
-    $user = auth()->user(); // Obtener el usuario autenticado
+    // Ruta y Almacen pueden actualizar el estado del pedido
+    Route::middleware(['role:Admin,Almacen,Ruta'])->group(function () {
+        Route::patch('/pedidos/{id}/status', [PedidoController::class, 'updateStatus'])->name('pedidos.status');
+    });
 
-    // Redirigir a la vista correspondiente según el rol del usuario
-
-    if ($user->hasRole('Admin')) {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->hasRole('Ventas')) {
-        return redirect()->route('ventas.dashboard');
-    } elseif ($user->hasRole('Compras')) {
-        return redirect()->route('compras.dashboard');
-    } elseif ($user->hasRole('Almacen')) {
-        return redirect()->route('almacen.dashboard');
-    } elseif ($user->hasRole('Ruta')) {
-        return redirect()->route('ruta.dashboard');
-    } elseif ($user->hasRole('Cliente')) {
-        return redirect()->route('cliente.dashboard');
-    }
-
-})->middleware('auth');
-
-// 2. Rutas del andamiaje de Autenticación (Login, Registro, Recuperación)
-Auth::routes();
-
-// 3. Ruta de inicio post-autenticación
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-
-// Rutas para los recursos principales (CRUD)
-
-// Se restringe el acceso a estas rutas dado el rol del usuario
-// Excepto para el rol 'Admin' que tiene acceso a todo
-
-// 4. Resource Routes for Users
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-    Route::resource('users', UserController::class);
+    // Solo RUTA puede subir fotos de evidencia
+    Route::middleware(['role:Admin,Ruta'])->group(function () {
+        Route::post('/pedidos/{id}/evidencias', [EvidenciaFotoController::class, 'store'])->name('pedidos.evidencias.store');
+    });
 });
 
-// Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
+/*
+|--------------------------------------------------------------------------
+| Recursos del Sistema (CRUDs)
+|--------------------------------------------------------------------------
+*/
 
-// 5. Resource Routes for Materials
+Route::middleware(['auth', 'role:Admin'])->group(function () {
+    Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
+});
 
 Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
     Route::resource('materials', MaterialController::class);
-});
-// Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
-
-// 6. Resource Routes for stockAlmacenes
-Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
     Route::resource('stockAlmacenes', StockAlmacenController::class);
 });
-// Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::class)->middleware('auth');
-
-// 7. Resource Routes for Providers
 
 Route::middleware(['auth', 'role:Admin,Compras'])->group(function () {
     Route::resource('providers', ProviderController::class);
 });
-// Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
 
-// 8. Resource Routes for Roles
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-    Route::resource('roles', RoleController::class);
-});
-
-// Route::resource('roles', App\Http\Controllers\RoleController::class)->middleware('auth');
-
-// 9. Resource Routes for Orders
-Route::middleware(['auth'])->group(function () {
-    Route::resource('orders', OrderController::class);
-});
-
-use App\Http\Controllers\ArticuloController;
-Route::resource('articulos', ArticuloController::class);
+Route::resource('orders', OrderController::class)->middleware('auth');
+Route::resource('articulos', ArticuloController::class)->middleware('auth');
