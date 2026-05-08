@@ -25,7 +25,7 @@ class AuthController extends Controller
         $user->load('roles');
 
         // Obtener el primer rol
-        $role = $user->roles->first()->nombreRol ?? null;
+        $role = $user->roles->first()?->nombreRol;
 
         // Crear token Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
