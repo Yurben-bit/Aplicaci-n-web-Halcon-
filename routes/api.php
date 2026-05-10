@@ -5,6 +5,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\StockAlmacenController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ArticuloController;
+
+// LOGIN
 Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => ['required', 'email'],
@@ -14,18 +23,12 @@ Route::post('/login', function (Request $request) {
     $user = User::where('email', $request->email)->first();
 
     if (! $user || ! Hash::check($request->password, $user->password)) {
-        return response()->json([
-            'message' => 'Credenciales incorrectas',
-        ], 401);
+        return response()->json(['message' => 'Credenciales incorrectas'], 401);
     }
 
-    // Cargar roles desde la tabla pivote
     $user->load('roles');
-
-    // Obtener el primer rol
     $role = $user->roles->first()?->nombreRol;
 
-    // Crear token Sanctum
     $token = $user->createToken('frontend-token')->plainTextToken;
 
     return response()->json([
@@ -39,30 +42,26 @@ Route::post('/login', function (Request $request) {
     ]);
 });
 
-
+// USER AUTH
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// LOGOUT
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     $token = $request->user()->currentAccessToken();
+    if ($token) $token->delete();
 
-    if ($token) {
-        $token->delete();
-    }
-    return response()->json([
-        'message' => 'Sesión cerrada correctamente'
-    ]);
+    return response()->json(['message' => 'Sesión cerrada correctamente']);
 });
 
-
-// Ruta para registrar un nuevo usuario
+// REGISTER
 Route::post('/register', function (Request $request) {
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'unique:users'],
         'password' => ['required', 'string', 'min:8'],
-    ]);  
+    ]);
 
     $user = User::create([
         'name' => $request->name,
@@ -78,12 +77,32 @@ Route::post('/register', function (Request $request) {
     ]);
 });
 
-// Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin-only', function (Request $request) {
-//     return response()->json([
-//         'message' => 'Acceso concedido a la ruta admin-only',
-//     ]);
-// });
+// CRUDs protegidos
+Route::middleware(['auth:sanctum'])->group(function () {
 
-// php artisan route:clear
-// php artisan route:list
-// php artisan serve
+    // USERS (Admin)
+    Route::apiResource('users', UserController::class)
+        ->middleware('role:Admin');
+
+    // ROLES (Admin)
+    Route::apiResource('roles', RoleController::class)
+        ->middleware('role:Admin');
+
+    // MATERIALS (Admin, Almacen)
+    Route::apiResource('materials', MaterialController::class)
+        ->middleware('role:Admin,Almacen');
+
+    // PROVIDERS (Admin, Compras)
+    Route::apiResource('providers', ProviderController::class)
+        ->middleware('role:Admin,Compras');
+
+    // STOCK (Admin, Almacen)
+    Route::apiResource('stockAlmacenes', StockAlmacenController::class)
+        ->middleware('role:Admin,Almacen');
+
+    // ORDERS (todos los roles autenticados)
+    Route::apiResource('orders', OrderController::class);
+
+    // ARTICULOS (todos los roles autenticados)
+    Route::apiResource('articulos', ArticuloController::class);
+});

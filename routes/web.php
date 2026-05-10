@@ -90,44 +90,55 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // Se restringe el acceso a estas rutas dado el rol del usuario
 // Excepto para el rol 'Admin' que tiene acceso a todo
 
-// 4. Resource Routes for Users
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-    Route::resource('users', UserController::class);
-});
+// OBSOLETO
 
-// Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
+// Se utiliza sanctum para la autenticación de API,
+// por lo que estas rutas no son necesarias ya que el frontend consume la API directamente. 
+// Sin embargo, se mantenien para propósitos de desarrollo.
 
-// 5. Resource Routes for Materials
+// // 4. Resource Routes for Users
+// Route::middleware(['auth', 'role:Admin'])->group(function () {
+//     Route::resource('users', UserController::class);
+// });
 
-Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
-    Route::resource('materials', MaterialController::class);
-});
-// Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
+// // Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
 
-// 6. Resource Routes for stockAlmacenes
-Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
-    Route::resource('stockAlmacenes', StockAlmacenController::class);
-});
-// Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::class)->middleware('auth');
+// // 5. Resource Routes for Materials
 
-// 7. Resource Routes for Providers
+// Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
+//     Route::resource('materials', MaterialController::class);
+// });
+// // Route::resource('materials', App\Http\Controllers\MaterialController::class)->middleware('auth');
 
-Route::middleware(['auth', 'role:Admin,Compras'])->group(function () {
-    Route::resource('providers', ProviderController::class);
-});
-// Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
+// // 6. Resource Routes for stockAlmacenes
+// Route::middleware(['auth', 'role:Admin,Almacen'])->group(function () {
+//     Route::resource('stockAlmacenes', StockAlmacenController::class);
+// });
+// // Route::resource('stockAlmacenes', App\Http\Controllers\StockAlmacenController::class)->middleware('auth');
 
-// 8. Resource Routes for Roles
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-    Route::resource('roles', RoleController::class);
-});
+// // 7. Resource Routes for Providers
 
-// Route::resource('roles', App\Http\Controllers\RoleController::class)->middleware('auth');
+// Route::middleware(['auth', 'role:Admin,Compras'])->group(function () {
+//     Route::resource('providers', ProviderController::class);
+// });
+// // Route::resource('providers', App\Http\Controllers\ProviderController::class)->middleware('auth');
 
-// 9. Resource Routes for Orders
-Route::middleware(['auth'])->group(function () {
-    Route::resource('orders', OrderController::class);
-});
+// // 8. Resource Routes for Roles
+// Route::middleware(['auth', 'role:Admin'])->group(function () {
+//     Route::resource('roles', RoleController::class);
+// });
 
-use App\Http\Controllers\ArticuloController;
-Route::resource('articulos', ArticuloController::class);
+// // Route::resource('roles', App\Http\Controllers\RoleController::class)->middleware('auth');
+
+// // 9. Resource Routes for Orders
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('orders', OrderController::class);
+// });
+
+// // 10. Resource Routes for Articulos
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('articulos', ArticuloController::class);
+// });
+
+// use App\Http\Controllers\ArticuloController;
+// Route::resource('articulos', ArticuloController::class);

@@ -8,93 +8,93 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // GET /api/users
     public function index()
     {
-        $users = User::paginate(10);
-        return view('users.index', compact('users'));
+        return User::with('roles')->get()->map(function ($u) {
+            return [
+                'id' => (string) $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'username' => $u->username,
+                'role' => $u->roles->first()->nombreRol ?? null,
+                'active' => $u->active,
+            ];
+        });
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('users.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // POST /api/users
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role'     => 'required|string',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+        $user = User::create([
+            'name'     => $request->name,
+            'username' => $request->username,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'active'   => true,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
+        $user->assignRole($request->role);
+
+        return response()->json([
+            'id' => (string) $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'role' => $request->role,
+            'active' => true,
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        // We will just use index/edit for simplicity
-        return redirect()->route('users.index');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        return view('users.edit', compact('user'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    // PUT /api/users/{id}
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8',
+            'role'     => 'required|string',
         ]);
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        
+        $user->name     = $request->name;
+        $user->username = $request->username;
+        $user->email    = $request->email;
+
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        
-        $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+        $user->save();
+        $user->syncRoles([$request->role]);
+
+        return response()->json([
+            'id' => (string) $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'role' => $request->role,
+            'active' => $user->active,
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // DELETE /api/users/{id}
     public function destroy(User $user)
     {
         if (auth()->id() === $user->id) {
-            return redirect()->route('users.index')->with('error', 'No puedes eliminarte a ti mismo.');
+            return response()->json(['error' => 'No puedes eliminarte a ti mismo.'], 403);
         }
 
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado correctamente.');
+
+        return response()->json(['success' => true]);
     }
 }

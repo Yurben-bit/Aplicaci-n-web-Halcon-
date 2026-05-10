@@ -7,74 +7,44 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // GET /api/roles
     public function index()
     {
-        $roles = Role::paginate(10);
-        return view('roles.index', compact('roles'));
+        return Role::select('id', 'nombreRol')->get();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('roles.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // POST /api/roles
     public function store(Request $request)
     {
         $request->validate([
             'nombreRol' => 'required|string|max:50|unique:roles'
         ]);
 
-        Role::create($request->all());
+        $role = Role::create([
+            'nombreRol' => $request->nombreRol
+        ]);
 
-        return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
-
+        return response()->json($role, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Role $role)
-    {
-        return redirect()->route('roles.index');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Role $role)
-    {
-        return view('roles.edit', compact('role'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    // PUT /api/roles/{id}
     public function update(Request $request, Role $role)
     {
         $request->validate([
             'nombreRol' => 'required|string|max:50|unique:roles,nombreRol,' . $role->id
         ]);
 
-        $role->update($request->all());
+        $role->update([
+            'nombreRol' => $request->nombreRol
+        ]);
 
-        return redirect()->route('roles.index')->with('success', 'Rol actualizado exitosamente.');
+        return response()->json($role);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // DELETE /api/roles/{id}
     public function destroy(Role $role)
     {
         $role->delete();
-        return redirect()->route('roles.index')->with('success', 'Rol eliminado exitosamente.');
+        return response()->json(['success' => true]);
     }
 }

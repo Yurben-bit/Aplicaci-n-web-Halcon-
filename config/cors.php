@@ -11,7 +11,7 @@ return [
     // https://app5-halconwebadmin-8191s-projects.vercel.app/
 
     'allowed_origins' => ['https://app5-gules.vercel.app', 'https://app5-halconwebadmin-8191s-projects.vercel.app'], 
-    // // Importante restringir, si es posible, a los dominios específicos del frontend.
+    // Importante restringir, si es posible, a los dominios específicos del frontend.
 
     'allowed_origins_patterns' => [],
 
