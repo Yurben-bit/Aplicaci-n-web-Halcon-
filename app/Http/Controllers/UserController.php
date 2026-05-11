@@ -31,7 +31,7 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role'     => 'required|string',
+            'role'     => 'required|integer|exists:roles,id',
         ]);
 
         $user = User::create([
@@ -42,7 +42,7 @@ class UserController extends Controller
             'active'   => true,
         ]);
 
-        $user->assignRole($request->role);
+        $user->roles()->sync([$request->role]);
 
         return response()->json([
             'id' => (string) $user->id,
@@ -62,7 +62,7 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
-            'role'     => 'required|string',
+            'role'     => 'required|integer|exists:roles,id',
         ]);
 
         $user->name     = $request->name;
@@ -74,7 +74,7 @@ class UserController extends Controller
         }
 
         $user->save();
-        $user->syncRoles([$request->role]);
+        $user->roles()->sync([$request->role]);
 
         return response()->json([
             'id' => (string) $user->id,
