@@ -16,7 +16,7 @@ class StockAlmacenController extends Controller
         // Usamos paginate(10) igual que en MaterialController
         // Eager loading con 'material' para evitar muchas consultas a la DB
         $stocks = StockAlmacen::with('material')->paginate(10);
-        return view('stock_almacens.index', compact('stocks'));
+        return response()->json($stocks);
     }
 
     /**
@@ -24,9 +24,8 @@ class StockAlmacenController extends Controller
      */
     public function create()
     {
-        // Necesitamos los materiales para el select del formulario
-        $materials = Material::all();
-        return view('stock_almacens.create', compact('materials'));
+        // Not needed for API
+        return response()->json(['message' => 'Use POST to /stockAlmacenes'], 405);
     }
 
     /**
@@ -41,14 +40,14 @@ class StockAlmacenController extends Controller
             'stockMaximo' => 'required|integer|min:0',
         ]);
 
-        StockAlmacen::create([
+        $stock = StockAlmacen::create([
             'materialesId' => $request->materialesId,
             'cantidadStock' => $request->cantidadStock,
             'stockMinimo' => $request->stockMinimo,
             'stockMaximo' => $request->stockMaximo,
         ]);
 
-        return redirect()->route('stock_almacens.index')->with('success', 'Registro de stock creado correctamente.');
+        return response()->json(['data' => $stock], 201);
     }
 
     /**
@@ -64,9 +63,8 @@ class StockAlmacenController extends Controller
      */
     public function edit(StockAlmacen $stockAlmacen)
     {
-        $materials = Material::all();
-        // El nombre de la variable 'stockAlmacen' debe coincidir con lo que pases a compact
-        return view('stock_almacens.edit', compact('stockAlmacen', 'materials'));
+        // Not needed for API
+        return response()->json(['data' => $stockAlmacen]);
     }
 
     /**
@@ -88,7 +86,7 @@ class StockAlmacenController extends Controller
             'stockMaximo' => $request->stockMaximo,
         ]);
 
-        return redirect()->route('stock_almacens.index')->with('success', 'Registro de stock actualizado correctamente.');
+        return response()->json(['data' => $stockAlmacen]);
     }
 
     /**
@@ -97,6 +95,6 @@ class StockAlmacenController extends Controller
     public function destroy(StockAlmacen $stockAlmacen)
     {
         $stockAlmacen->delete();
-        return redirect()->route('stock_almacens.index')->with('success', 'Registro de stock eliminado correctamente.');
+        return response()->json(['message' => 'Stock record deleted successfully'], 200);
     }
 }

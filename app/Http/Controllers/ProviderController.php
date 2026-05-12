@@ -13,7 +13,7 @@ class ProviderController extends Controller
     public function index()
     {
         $providers = Provider::paginate(10);
-        return view('providers.index', compact('providers'));
+        return response()->json($providers);
     }
 
     /**
@@ -21,7 +21,8 @@ class ProviderController extends Controller
      */
     public function create()
     {
-        return view('providers.create');
+        // Not needed for API
+        return response()->json(['message' => 'Use POST to /providers'], 405);
     }
 
     /**
@@ -36,14 +37,14 @@ class ProviderController extends Controller
             'activo' => 'required|boolean',
         ]);
 
-        Provider::create([
+        $provider = Provider::create([
             'nombre_proveedor' => $request->nombre_proveedor,
             'telefono' => $request->telefono,
             'correo' => $request->correo,
             'activo' => $request->activo,
         ]);
 
-        return redirect()->route('providers.index')->with('success', 'Provider creado correctamente.');
+        return response()->json(['data' => $provider], 201);
     }
 
     /**
@@ -59,7 +60,8 @@ class ProviderController extends Controller
      */
     public function edit(Provider $provider)
     {
-        return view('providers.edit', compact('provider'));
+        // Not needed for API
+        return response()->json(['data' => $provider]);
     }
 
     /**
@@ -67,10 +69,10 @@ class ProviderController extends Controller
      */
     public function update(Request $request, Provider $provider)
     {
-         $request->validate([
+        $request->validate([
             'nombre_proveedor' => 'required|string|min:0|max:255',
             'telefono' => 'required|string',
-            'correo' => 'required|string|min:0|max:255|unique:providers' . $provider->id,
+            'correo' => 'required|string|min:0|max:255|unique:providers,correo,' . $provider->id,
             'activo' => 'required|boolean',
         ]);
 
@@ -81,7 +83,7 @@ class ProviderController extends Controller
             'activo' => $request->activo,
         ]);
 
-        return redirect()->route('providers.index')->with('success', 'Provider actualizado correctamente.');
+        return response()->json(['data' => $provider]);
     }
 
     /**
@@ -90,6 +92,6 @@ class ProviderController extends Controller
     public function destroy(Provider $provider)
     {
         $provider->delete();
-        return redirect()->route('providers.index')->with('success', 'Provider eliminado correctamente.');
+        return response()->json(['message' => 'Provider deleted successfully'], 200);
     }
 }

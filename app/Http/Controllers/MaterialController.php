@@ -10,18 +10,19 @@ class MaterialController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() // USAR
+    public function index()
     {
         $materials = Material::paginate(10);
-        return view('materials.index', compact('materials'));
+        return response()->json($materials);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create() // USAR
+    public function create()
     {
-        return view('materials.create');
+        // Not needed for API
+        return response()->json(['message' => 'Use POST to /materials'], 405);
     }
 
     /**
@@ -36,14 +37,14 @@ class MaterialController extends Controller
             'cantidad_material' => 'required|integer|min:0',
         ]);
 
-        Material::create([
+        $material = Material::create([
             'clave_material' => $request->clave_material,
             'descripcion_material' => $request->descripcion_material,
             'precio_unitario' => $request->precio_unitario,
             'cantidad_material' => $request->cantidad_material,
         ]);
 
-        return redirect()->route('materials.index')->with('success', 'Material creado correctamente.');
+        return response()->json(['data' => $material], 201);
     }
 
 
@@ -58,9 +59,10 @@ class MaterialController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Material $material) // USAR
+    public function edit(Material $material)
     {
-        return view('materials.edit', compact('material'));
+        // Not needed for API - return material data for PUT/PATCH
+        return response()->json(['data' => $material]);
     }
 
     /**
@@ -82,7 +84,7 @@ class MaterialController extends Controller
             'cantidad_material' => $request->cantidad_material,
         ]);
 
-        return redirect()->route('materials.index')->with('success', 'Material actualizado correctamente.');
+        return response()->json(['data' => $material]);
     }
 
     /**
@@ -91,6 +93,6 @@ class MaterialController extends Controller
     public function destroy(Material $material)
     {
         $material->delete();
-        return redirect()->route('materials.index')->with('success', 'Material eliminado correctamente.');
+        return response()->json(['message' => 'Material deleted successfully'], 200);
     }
 }

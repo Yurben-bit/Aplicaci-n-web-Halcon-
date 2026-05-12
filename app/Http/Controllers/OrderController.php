@@ -14,8 +14,8 @@ class OrderController extends Controller
     public function index()
     {
         // latest() ordena automáticamente por fecha de creación (descendente)
-        $orders = Order::latest()->get(); 
-        return view('orders.index', compact('orders'));
+        $orders = Order::latest()->paginate(10); 
+        return response()->json($orders);
     }
 
     /**
@@ -27,9 +27,9 @@ class OrderController extends Controller
             'description' => 'required',
         ]);
 
-        Order::create($request->all());
+        $order = Order::create($request->all());
 
-        return redirect()->route('orders.index')->with('success', 'Orden creada.');
+        return response()->json(['data' => $order], 201);
     }
 
     /**
@@ -54,7 +54,7 @@ class OrderController extends Controller
 
         $order->save();
 
-        return redirect()->back()->with('success', 'Estado actualizado correctamente.');
+        return response()->json(['data' => $order]);
     }
     
     /**
@@ -63,6 +63,6 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->route('orders.index');
+        return response()->json(['message' => 'Order deleted successfully'], 200);
     }
 }

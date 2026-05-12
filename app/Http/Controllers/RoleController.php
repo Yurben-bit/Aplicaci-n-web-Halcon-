@@ -10,7 +10,8 @@ class RoleController extends Controller
     // GET /api/roles
     public function index()
     {
-        return Role::select('id', 'nombreRol')->get();
+        $roles = Role::select('id', 'nombreRol')->get();
+        return response()->json($roles);
     }
 
     // POST /api/roles

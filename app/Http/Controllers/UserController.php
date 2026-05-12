@@ -11,7 +11,7 @@ class UserController extends Controller
     // GET /api/users
     public function index()
     {
-        return User::with('roles')->get()->map(function ($u) {
+        $users = User::with('roles')->get()->map(function ($u) {
             return [
                 'id' => (string) $u->id,
                 'name' => $u->name,
@@ -21,6 +21,8 @@ class UserController extends Controller
                 'active' => $u->active,
             ];
         });
+
+        return response()->json($users);
     }
 
     // POST /api/users

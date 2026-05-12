@@ -9,13 +9,14 @@ class ArticuloController extends Controller
 {
     public function index()
     {
-        $articulos = Articulo::all();
-        return view('articulos.index', compact('articulos'));
+        $articulos = Articulo::paginate(10);
+        return response()->json($articulos);
     }
 
     public function create()
     {
-        return view('articulos.create');
+        // Not needed for API
+        return response()->json(['message' => 'Use POST to /articulos'], 405);
     }
 
     public function store(Request $request)
@@ -25,26 +26,26 @@ class ArticuloController extends Controller
             'descripcion' => 'required',
         ]);
 
-        Articulo::create($request->all());
-        return redirect()->route('articulos.index')->with('success', 'Creado correctamente');
+        $articulo = Articulo::create($request->all());
+        return response()->json(['data' => $articulo], 201);
     }
 
     public function edit($id)
     {
         $articulo = Articulo::findOrFail($id);
-        return view('articulos.edit', compact('articulo'));
+        return response()->json(['data' => $articulo]);
     }
 
     public function update(Request $request, $id)
     {
         $articulo = Articulo::findOrFail($id);
         $articulo->update($request->all());
-        return redirect()->route('articulos.index')->with('success', 'Actualizado');
+        return response()->json(['data' => $articulo]);
     }
 
     public function destroy($id)
     {
         Articulo::destroy($id);
-        return redirect()->route('articulos.index')->with('success', 'Eliminado');
+        return response()->json(['message' => 'Article deleted successfully'], 200);
     }
 }
