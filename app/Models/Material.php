@@ -13,6 +13,7 @@ class Material extends Model
         'descripcion_material',
         'precio_unitario',
         'cantidad_material',
+        'active',
     ];
 
     // Casts
@@ -20,6 +21,7 @@ class Material extends Model
         'clave_material' => 'integer',
         'precio_unitario' => 'integer',
         'cantidad_material' => 'integer',
+        'active' => 'boolean',
     ];
 
 

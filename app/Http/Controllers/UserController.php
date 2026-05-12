@@ -19,6 +19,10 @@ class UserController extends Controller
                 'username' => $u->username,
                 'role' => $u->roles->first()->nombreRol ?? null,
                 'active' => $u->active,
+                'company' => $u->company,
+                'phone' => $u->phone,
+                'address' => $u->address,
+                'customerNumber' => $u->customer_number,
             ];
         });
 
@@ -34,6 +38,11 @@ class UserController extends Controller
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role'     => 'required|integer|exists:roles,id',
+            'company'  => 'nullable|string|max:255',
+            'phone'    => 'nullable|string|max:50',
+            'address'  => 'nullable|string|max:255',
+            'customerNumber' => 'nullable|string|max:50',
+            'active'   => 'sometimes|boolean',
         ]);
 
         $user = User::create([
@@ -41,7 +50,11 @@ class UserController extends Controller
             'username' => $request->username,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'active'   => true,
+            'company'  => $request->company,
+            'phone'    => $request->phone,
+            'address'  => $request->address,
+            'customer_number' => $request->customerNumber,
+            'active'   => $request->boolean('active', true),
         ]);
 
         $user->roles()->sync([$request->role]);
@@ -52,7 +65,11 @@ class UserController extends Controller
             'email' => $user->email,
             'username' => $user->username,
             'role' => $request->role,
-            'active' => true,
+            'active' => $user->active,
+            'company' => $user->company,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'customerNumber' => $user->customer_number,
         ], 201);
     }
 
@@ -65,11 +82,24 @@ class UserController extends Controller
             'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
             'role'     => 'required|integer|exists:roles,id',
+            'company'  => 'nullable|string|max:255',
+            'phone'    => 'nullable|string|max:50',
+            'address'  => 'nullable|string|max:255',
+            'customerNumber' => 'nullable|string|max:50',
+            'active'   => 'sometimes|boolean',
         ]);
 
         $user->name     = $request->name;
         $user->username = $request->username;
         $user->email    = $request->email;
+        $user->company  = $request->company;
+        $user->phone    = $request->phone;
+        $user->address  = $request->address;
+        $user->customer_number = $request->customerNumber;
+
+        if ($request->has('active')) {
+            $user->active = $request->boolean('active');
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
@@ -85,6 +115,10 @@ class UserController extends Controller
             'username' => $user->username,
             'role' => $request->role,
             'active' => $user->active,
+            'company' => $user->company,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'customerNumber' => $user->customer_number,
         ]);
     }
 

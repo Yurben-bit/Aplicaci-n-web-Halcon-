@@ -55,7 +55,7 @@ class StockAlmacenController extends Controller
      */
     public function show(StockAlmacen $stockAlmacen)
     {
-        return redirect()->route('stock_almacens.index');
+        return response()->json(['data' => $stockAlmacen->load('material')]);
     }
 
     /**

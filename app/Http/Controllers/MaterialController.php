@@ -35,6 +35,7 @@ class MaterialController extends Controller
             'descripcion_material' => 'required|string',
             'precio_unitario' => 'required|integer|min:0',
             'cantidad_material' => 'required|integer|min:0',
+            'active' => 'sometimes|boolean',
         ]);
 
         $material = Material::create([
@@ -42,6 +43,7 @@ class MaterialController extends Controller
             'descripcion_material' => $request->descripcion_material,
             'precio_unitario' => $request->precio_unitario,
             'cantidad_material' => $request->cantidad_material,
+            'active' => $request->boolean('active', true),
         ]);
 
         return response()->json(['data' => $material], 201);
@@ -75,6 +77,7 @@ class MaterialController extends Controller
             'descripcion_material' => 'required|string',
             'precio_unitario' => 'required|integer|min:0',
             'cantidad_material' => 'required|integer|min:0',
+            'active' => 'sometimes|boolean',
         ]);
 
         $material->update([
@@ -82,6 +85,7 @@ class MaterialController extends Controller
             'descripcion_material' => $request->descripcion_material,
             'precio_unitario' => $request->precio_unitario,
             'cantidad_material' => $request->cantidad_material,
+            'active' => $request->boolean('active', $material->active),
         ]);
 
         return response()->json(['data' => $material]);

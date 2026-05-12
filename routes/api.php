@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use App\Models\Role;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\StockAlmacenController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ArticuloController;
+use App\Http\Controllers\PurchaseRequestController;
 
 // LOGIN
 Route::post('/login', function (Request $request) {
@@ -66,14 +68,31 @@ Route::post('/register', function (Request $request) {
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'unique:users'],
+        'username' => ['required', 'string', 'max:255', 'unique:users'],
         'password' => ['required', 'string', 'min:8'],
+        'company' => ['nullable', 'string', 'max:255'],
+        'phone' => ['nullable', 'string', 'max:50'],
+        'address' => ['nullable', 'string', 'max:255'],
     ]);
+
+    $customerRole = Role::where('nombreRol', 'Customer')->first();
+    $customerCount = User::where('customer_number', 'like', 'CUST-%')->count() + 1;
 
     $user = User::create([
         'name' => $request->name,
+        'username' => $request->username,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'company' => $request->company,
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'customer_number' => 'CUST-' . str_pad((string) $customerCount, 3, '0', STR_PAD_LEFT),
+        'active' => true,
     ]);
+
+    if ($customerRole) {
+        $user->roles()->sync([$customerRole->id]);
+    }
 
     $token = $user->createToken('frontend-token')->plainTextToken;
 
@@ -111,6 +130,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // ARTICULOS (todos los roles autenticados)
     Route::apiResource('articulos', ArticuloController::class);
+
+    // PURCHASE REQUESTS (Admin, Compras)
+    Route::apiResource('purchaseRequests', PurchaseRequestController::class)
+        ->middleware('role:Admin,Compras');
 
     // Cambiar contraseña (todos los roles autenticados)
     Route::post('/users/{user}/change-password', [UserController::class, 'changePassword'])
