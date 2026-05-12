@@ -28,19 +28,25 @@ Route::post('/login', function (Request $request) {
 
     $user->load('roles');
     $role = $user->roles->first()?->nombreRol;
+    $roleId = $user->roles->first()?->id;
 
     $token = $user->createToken('frontend-token')->plainTextToken;
 
     return response()->json([
         'token' => $token,
         'user'  => [
-            'id'    => $user->id,
-            'name'  => $user->name,
-            'email' => $user->email,
-            'role'  => $role
+            'id'       => $user->id,
+            'name'     => $user->name,
+            'username' => $user->username,   // Nombre de usuario
+            'email'    => $user->email,
+            'role'     => $role,             // nombre del rol
+            'role_id'  => $roleId,           // ID del rol
+            'phone'    => $user->phone ?? null, // si existe
+            'active'   => $user->active,
         ],
     ]);
 });
+
 
 // USER AUTH
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
