@@ -12,15 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username')->unique()->after('name');
-            $table->boolean('active')->default(true)->after('password');
+            if (!Schema::hasColumn('users', 'username')) {
+                $table->string('username')->unique()->after('name');
+            }
+            if (!Schema::hasColumn('users', 'active')) {
+                $table->boolean('active')->default(true)->after('password');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['username', 'active']);
+            if (Schema::hasColumn('users', 'username')) {
+                $table->dropColumn('username');
+            }
+            if (Schema::hasColumn('users', 'active')) {
+                $table->dropColumn('active');
+            }
         });
     }
 

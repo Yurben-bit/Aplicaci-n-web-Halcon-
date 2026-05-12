@@ -9,14 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('materials', function (Blueprint $table) {
-            $table->boolean('active')->default(true)->after('cantidad_material');
+            if (!Schema::hasColumn('materials', 'active')) {
+                $table->boolean('active')->default(true)->after('cantidad_material');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('materials', function (Blueprint $table) {
-            $table->dropColumn('active');
+            if (Schema::hasColumn('materials', 'active')) {
+                $table->dropColumn('active');
+            }
         });
     }
 };

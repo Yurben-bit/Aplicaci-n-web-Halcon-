@@ -9,14 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stockAlmacenes', function (Blueprint $table) {
-            $table->foreignId('materialesId')->nullable()->after('id')->constrained('materials')->nullOnDelete();
+            if (!Schema::hasColumn('stockAlmacenes', 'materialesId')) {
+                $table->foreignId('materialesId')->nullable()->after('id')->constrained('materials')->nullOnDelete();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('stockAlmacenes', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('materialesId');
+            if (Schema::hasColumn('stockAlmacenes', 'materialesId')) {
+                $table->dropConstrainedForeignId('materialesId');
+            }
         });
     }
 };
