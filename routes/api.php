@@ -105,4 +105,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // ARTICULOS (todos los roles autenticados)
     Route::apiResource('articulos', ArticuloController::class);
+
+    // Cambiar contraseña (todos los roles autenticados)
+    Route::post('/users/{user}/change-password', [UserController::class, 'changePassword'])
+    ->middleware('role:Admin,Cliente,Ventas,Compras,Almacen,Ruta');
 });

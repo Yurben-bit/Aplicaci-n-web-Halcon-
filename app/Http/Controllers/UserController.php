@@ -97,4 +97,24 @@ class UserController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function changePassword(Request $request, User $user)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        // Verificar contraseña actual
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['error' => 'Incorrect current password'], 422);
+        }
+
+        // Actualizar contraseña
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+    
 }
