@@ -75,7 +75,7 @@ Route::post('/register', function (Request $request) {
         'address' => ['nullable', 'string', 'max:255'],
     ]);
 
-    $customerRole = Role::where('nombreRol', 'Customer')->first();
+    $customerRole = Role::whereIn('nombreRol', ['Cliente', 'Customer'])->first();
     $customerCount = User::where('customer_number', 'like', 'CUST-%')->count() + 1;
 
     $user = User::create([
