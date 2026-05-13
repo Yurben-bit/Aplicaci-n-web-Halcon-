@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\Storage; // Importante para las fotos
 
 class OrderController extends Controller
 {
+    private function buildDescription(?string $invoiceNumber, ?string $customerName): string
+    {
+        $parts = array_filter([
+            trim((string) $invoiceNumber),
+            trim((string) $customerName),
+        ]);
+
+        return $parts ? implode(' - ', $parts) : 'Orden';
+    }
+
     private function normalizeStatus(?string $status): string
     {
         $value = strtolower(trim((string) $status));
@@ -58,6 +68,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::create([
+            'description' => $this->buildDescription($request->invoiceNumber, $request->customerName),
             'invoice_number' => $request->invoiceNumber,
             'customer_name' => $request->customerName,
             'customer_number' => $request->customerNumber,
@@ -124,6 +135,13 @@ class OrderController extends Controller
 
         if ($request->filled('deliveryAddress')) {
             $order->delivery_address = $request->deliveryAddress;
+        }
+
+        if ($request->filled('invoiceNumber') || $request->filled('customerName')) {
+            $order->description = $this->buildDescription(
+                $request->filled('invoiceNumber') ? $request->invoiceNumber : $order->invoice_number,
+                $request->filled('customerName') ? $request->customerName : $order->customer_name,
+            );
         }
 
         if ($request->has('notes')) {

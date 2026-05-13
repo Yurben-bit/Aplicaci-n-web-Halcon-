@@ -11,6 +11,7 @@ class Order extends Model
 
     // Requisito: Definimos los campos que se pueden llenar desde el formulario
     protected $fillable = [
+        'description',
         'invoice_number',
         'customer_name',
         'customer_number',
