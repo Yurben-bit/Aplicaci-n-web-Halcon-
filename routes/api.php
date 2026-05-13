@@ -126,7 +126,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->parameters([
             'stockAlmacenes' => 'stockAlmacen'
         ])
-        ->middleware('role:Admin,Almacen');
+        ->middleware('role:Admin,Almacen,Compras');
 
     // ORDERS (todos los roles autenticados)
     Route::apiResource('orders', OrderController::class);
