@@ -8,6 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('purchase_requests')) {
+                $this->createPurchaseRequestsTable();
+        }
+    }
+    
+    private function createPurchaseRequestsTable(): void
+    {   
         Schema::create('purchase_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('material_id')->constrained('materials')->cascadeOnDelete();
