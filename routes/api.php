@@ -115,7 +115,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // MATERIALS (Admin, Almacen)
     Route::apiResource('materials', MaterialController::class)
-        ->middleware('role:Admin,Almacen');
+        ->middleware('role:Admin,Almacen,Compras');
 
     // PROVIDERS (Admin, Compras)
     Route::apiResource('providers', ProviderController::class)
