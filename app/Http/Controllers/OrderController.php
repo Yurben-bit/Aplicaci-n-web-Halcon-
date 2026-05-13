@@ -23,7 +23,7 @@ class OrderController extends Controller
         $value = strtolower(trim((string) $status));
 
         return match ($value) {
-            'in process', 'in_process', 'en proceso' => 'en_ruta',
+            'in process', 'in_process', 'en proceso' => 'en_proceso',
             'in route', 'in_route', 'en ruta' => 'en_ruta',
             'delivered', 'entregado' => 'entregado',
             default => 'pendiente',
