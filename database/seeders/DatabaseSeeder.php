@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -27,5 +28,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
         ]);
+
+        $adminRole = Role::where('nombreRol', 'Admin')->first();
+
+        if ($adminRole) {
+            User::where('email', 'test@example.com')->first()?->roles()->sync([$adminRole->id]);
+        }
     }
 }
