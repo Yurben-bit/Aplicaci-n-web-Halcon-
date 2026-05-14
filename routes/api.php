@@ -138,7 +138,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // PURCHASE REQUESTS (Admin, Compras)
     Route::apiResource('purchaseRequests', PurchaseRequestController::class)
-        ->middleware('role:Admin,Compras');
+        ->middleware('role:Admin,Compras,Almacen');
 
     // Cambiar contraseña (todos los roles autenticados)
     Route::post('/users/{user}/change-password', [UserController::class, 'changePassword'])
