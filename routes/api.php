@@ -15,6 +15,11 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ArticuloController;
 use App\Http\Controllers\PurchaseRequestController;
 
+// CORS Preflight handler
+Route::options('{any}', function () {
+    return response()->json([], 200);
+})->where('any', '.*');
+
 // LOGIN
 Route::post('/login', function (Request $request) {
     $request->validate([
