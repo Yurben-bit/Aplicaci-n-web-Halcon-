@@ -84,11 +84,17 @@ class PurchaseRequestController extends Controller
 
     public function latestByMaterial($materialId)
     {
-        $pr = PurchaseRequest::where('materialId', $materialId)
-            ->where('status', 'Purchased')
-            ->orderBy('created_at', 'desc')
-            ->first();
+        try {
+            $pr = PurchaseRequest::where('material_id', $materialId)
+                ->where('status', 'purchased') // en minúsculas, para evitar problemas de comparación
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-        return response()->json($pr);
+            return response()->json($pr, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
