@@ -10,3 +10,9 @@ web: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PO
 # lo cual es necesario en un entorno de producción como Railway o Heroku. 
 # Luego, el comando `php artisan serve` inicia el servidor de desarrollo de Laravel, 
 # escuchando en todas las interfaces (`0.0.0.0`) y en el puerto especificado (${PORT}).
+
+# php artisan route:clear
+# php artisan cache:clear
+# php artisan optimize:clear
+
+web: php artisan route:clear && php artisan cache:clear && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=${PORT}
