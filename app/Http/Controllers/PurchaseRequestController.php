@@ -81,4 +81,14 @@ class PurchaseRequestController extends Controller
 
         return response()->json(['message' => 'Purchase request deleted successfully']);
     }
+
+    public function latestByMaterial($materialId)
+    {
+        $pr = PurchaseRequest::where('materialId', $materialId)
+            ->where('status', 'Purchased')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return response()->json($pr);
+    }
 }

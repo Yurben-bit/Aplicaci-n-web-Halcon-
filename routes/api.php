@@ -102,6 +102,8 @@ Route::post('/register', function (Request $request) {
     ]);
 });
 
+Route::get('/purchase-requests/latest/{materialId}', [PurchaseRequestController::class, 'latestByMaterial']);
+
 // CRUDs protegidos
 Route::middleware(['auth:sanctum'])->group(function () {
 
