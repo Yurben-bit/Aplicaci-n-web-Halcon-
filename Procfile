@@ -4,7 +4,7 @@
 
 # Para cuando se quiere ejecutar una migracion (forzada) en el despliegue, se puede usar el siguiente comando:
 
-web: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT}
+# web: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT}
 
 # El comando `php artisan migrate --force` se asegura de que las migraciones se ejecuten sin pedir confirmación,
 # lo cual es necesario en un entorno de producción como Railway o Heroku. 
@@ -15,4 +15,4 @@ web: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PO
 # php artisan cache:clear
 # php artisan optimize:clear
 
-# web: php artisan route:clear && php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=${PORT}
+web: php artisan route:clear && php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=${PORT}
