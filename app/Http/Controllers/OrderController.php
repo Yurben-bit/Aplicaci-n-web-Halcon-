@@ -33,8 +33,31 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Order::latest()->paginate(10);
-        return response()->json(['data' => $orders]);
+        $orders = Order::query()->latest();
+
+        // Filtrar por customerNumber
+        if ($request->has('customer')) {
+            $orders->where('customer_number', $request->customer);
+        }
+
+        // Filtrar por invoiceNumber
+        if ($request->has('invoice')) {
+            $orders->where('invoice_number', $request->invoice);
+        }
+
+        // Permitir filtrar por status (opcional)
+        if ($request->has('status')) {
+            $orders->where('status', $this->normalizeStatus($request->status));
+        }
+
+        // Permitir filtrar por fecha (opcional)
+        if ($request->has('date')) {
+            $orders->whereDate('order_date', $request->date);
+        }
+
+        return response()->json([
+            'data' => $orders->paginate(50)
+        ]);
     }
 
     public function show(Order $order)
