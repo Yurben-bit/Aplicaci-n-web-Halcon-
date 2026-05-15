@@ -17,7 +17,8 @@ class UserController extends Controller
                 'name' => $u->name,
                 'email' => $u->email,
                 'username' => $u->username,
-                'role' => $u->roles->first()->nombreRol ?? null,
+                'role' => $u->roles->first()->nombreRol ?? null,  // Agregado para incluir el nombre del rol
+                'role_id' => $u->roles->first()->id ?? null, // Agregado para incluir el ID del rol
                 'active' => $u->active,
                 'company' => $u->company,
                 'phone' => $u->phone,
@@ -64,7 +65,8 @@ class UserController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'username' => $user->username,
-            'role' => $user->roles->first()->nombreRol ?? null,
+            'role' => $user->roles->first()->nombreRol ?? null, // Agregado para incluir el nombre del rol
+            'role_id' => $user->roles->first()->id ?? null, // Agregado para incluir el ID del rol
             'active' => $user->active,
             'company' => $user->company,
             'phone' => $user->phone,
@@ -113,7 +115,8 @@ class UserController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'username' => $user->username,
-            'role' => $user->roles->first()->nombreRol ?? null,
+            'role' => $user->roles->first()->nombreRol ?? null, // Agregado para incluir el nombre del rol
+            'role_id' => $user->roles->first()->id ?? null, // Agregado para incluir el ID del rol
             'active' => $user->active,
             'company' => $user->company,
             'phone' => $user->phone,
