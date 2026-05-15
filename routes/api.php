@@ -107,13 +107,25 @@ Route::get('/purchaseRequests/latest/{materialId}', [PurchaseRequestController::
 // CRUDs protegidos
 Route::middleware(['auth:sanctum'])->group(function () {
 
+    /*
+    En total son 6 roles: Admin, Cliente, Ventas, Compras, Almacen, Ruta
+    - Admin: Acceso completo a todos los recursos y operaciones.
+    - Cliente: Solo puede ver sus ordenes
+    - Ventas: Puede gestionar ordenes y visualizar clientes, pero no puede acceder a materiales, proveedores o stock.
+    - Compras: Puede realizar solicitudes de compra, checar alertas de stock, marcar dichas alertas como resueltas, 
+    - y visualizar materiales como proveedores, pero no puede gestionar usuarios ni roles.
+    - Almacen: Puede gestionar el stock del almacén, actualizar el stock, crear alertas
+    - visualizar y mandar los pedidos en proceso, ademas de , pero no puede gestionar usuarios ni roles.
+    - Ruta: Puede visualizar ordenes asignadas a su ruta, pero no puede gestionar usuarios
+    */
+
     // USERS (Admin)
     Route::apiResource('users', UserController::class)
-        ->middleware('role:Admin');
+        ->middleware('role:Admin, Compras');
 
     // ROLES (Admin)
     Route::apiResource('roles', RoleController::class)
-        ->middleware('role:Admin');
+        ->middleware('role:Admin, Compras');
 
     // MATERIALS (Admin, Almacen)
     Route::apiResource('materials', MaterialController::class)
