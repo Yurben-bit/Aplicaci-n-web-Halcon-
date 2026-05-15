@@ -121,11 +121,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // USERS (Admin)
     Route::apiResource('users', UserController::class)
-        ->middleware('role:Admin, Compras');
+        ->middleware('role:Admin, Ventas');
 
     // ROLES (Admin)
     Route::apiResource('roles', RoleController::class)
-        ->middleware('role:Admin, Compras');
+        ->middleware('role:Admin, Ventas');
 
     // MATERIALS (Admin, Almacen)
     Route::apiResource('materials', MaterialController::class)
