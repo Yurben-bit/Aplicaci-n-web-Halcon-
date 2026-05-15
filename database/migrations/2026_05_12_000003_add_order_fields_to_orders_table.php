@@ -111,26 +111,6 @@ return new class extends Migration
             if (Schema::hasColumn('orders', 'missing_items')) {
                 $table->dropColumn('missing_items');
             }
-            /*
-            $table->dropColumn([
-                'invoice_number',
-                'customer_name',
-                'customer_number',
-                'fiscal_data',
-                'order_date',
-                'delivery_address',
-                'notes',
-                'items',
-                'total_amount',
-                'deleted',
-                'loaded_unit_photo',
-                'delivery_evidence_photo',
-                'loaded_photo_timestamp',
-                'delivered_photo_timestamp',
-                'delivery_notes',
-                'missing_items',
-                
-            ]);*/
         });
     }
 };
