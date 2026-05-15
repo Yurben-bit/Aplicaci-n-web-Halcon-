@@ -15,4 +15,6 @@
 # php artisan cache:clear
 # php artisan optimize:clear
 
-web: php artisan route:clear && php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=${PORT}
+# web: php artisan route:clear && php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=${PORT}
+
+web: php artisan storage:link && php artisan serve --host=0.0.0.0 --port=${PORT}

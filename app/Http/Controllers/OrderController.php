@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Importante para las fotos
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -31,14 +31,10 @@ class OrderController extends Controller
         };
     }
 
-    /**
-     * Requisito: Listado general de último a primero.
-     */
     public function index()
     {
-        // latest() ordena automáticamente por fecha de creación (descendente)
-        $orders = Order::latest()->paginate(10); 
-        return response()->json($orders);
+        $orders = Order::latest()->paginate(10);
+        return response()->json(['data' => $orders]);
     }
 
     public function show(Order $order)
@@ -46,9 +42,6 @@ class OrderController extends Controller
         return response()->json(['data' => $order]);
     }
 
-    /**
-     * Requisito: Creación de orden.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -63,9 +56,6 @@ class OrderController extends Controller
             'items' => 'nullable|array',
             'totalAmount' => 'nullable|numeric',
             'deleted' => 'nullable|boolean',
-            'loadedUnitPhoto' => 'nullable|string',
-            'deliveryEvidencePhoto' => 'nullable|string',
-            'missingItems' => 'nullable|array',
         ]);
 
         $order = Order::create([
@@ -81,19 +71,14 @@ class OrderController extends Controller
             'items' => $request->items,
             'total_amount' => $request->totalAmount,
             'deleted' => $request->boolean('deleted', false),
-            'loaded_unit_photo' => $request->loadedUnitPhoto,
-            'delivery_evidence_photo' => $request->deliveryEvidencePhoto,
-            'missing_items' => $request->missingItems,
         ]);
 
         return response()->json(['data' => $order], 201);
     }
 
-    /**
-     * Requisito: Actualización de estado y evidencia fotográfica.
-     */
     public function update(Request $request, Order $order)
     {
+        // VALIDACIÓN
         $request->validate([
             'invoiceNumber' => 'sometimes|string',
             'customerName' => 'sometimes|string',
@@ -106,109 +91,83 @@ class OrderController extends Controller
             'items' => 'sometimes|array',
             'totalAmount' => 'sometimes|numeric',
             'deleted' => 'sometimes|boolean',
-            'loadedUnitPhoto' => 'sometimes|nullable|string',
-            'deliveryEvidencePhoto' => 'sometimes|nullable|string',
-            'loadedPhotoTimestamp' => 'sometimes|nullable|string',
-            'deliveredPhotoTimestamp' => 'sometimes|nullable|string',
-            'deliveryNotes' => 'sometimes|nullable|string',
-            'missingItems' => 'sometimes|nullable|array',
+            'loadedPhotoTimestamp' => 'sometimes|string',
+            'deliveredPhotoTimestamp' => 'sometimes|string',
+            'deliveryNotes' => 'sometimes|string',
+            'missingItems' => 'sometimes|array',
+            'loadedUnitPhoto' => 'sometimes|file|image|max:20480',
+            'deliveryEvidencePhoto' => 'sometimes|file|image|max:20480',
         ]);
 
-        if ($request->filled('invoiceNumber')) {
-            $order->invoice_number = $request->invoiceNumber;
+        // CAMPOS NORMALES
+        foreach ([
+            'invoiceNumber' => 'invoice_number',
+            'customerName' => 'customer_name',
+            'customerNumber' => 'customer_number',
+            'fiscalData' => 'fiscal_data',
+            'date' => 'order_date',
+            'deliveryAddress' => 'delivery_address',
+            'notes' => 'notes',
+            'items' => 'items',
+            'totalAmount' => 'total_amount',
+            'deleted' => 'deleted',
+            'deliveryNotes' => 'delivery_notes',
+            'missingItems' => 'missing_items',
+        ] as $input => $field) {
+            if ($request->has($input)) {
+                $order->$field = $request->$input;
+            }
         }
 
-        if ($request->filled('customerName')) {
-            $order->customer_name = $request->customerName;
-        }
-
-        if ($request->filled('customerNumber')) {
-            $order->customer_number = $request->customerNumber;
-        }
-
-        if ($request->filled('fiscalData')) {
-            $order->fiscal_data = $request->fiscalData;
-        }
-
-        if ($request->filled('date')) {
-            $order->order_date = $request->date;
-        }
-
-        if ($request->filled('deliveryAddress')) {
-            $order->delivery_address = $request->deliveryAddress;
-        }
-
-        if ($request->filled('invoiceNumber') || $request->filled('customerName')) {
-            $order->description = $this->buildDescription(
-                $request->filled('invoiceNumber') ? $request->invoiceNumber : $order->invoice_number,
-                $request->filled('customerName') ? $request->customerName : $order->customer_name,
-            );
-        }
-
-        if ($request->has('notes')) {
-            $order->notes = $request->notes;
-        }
-
+        // STATUS
         if ($request->has('status')) {
             $order->status = $this->normalizeStatus($request->status);
         }
 
-        if ($request->has('items')) {
-            $order->items = $request->items;
+        // DESCRIPCIÓN
+        if ($request->filled('invoiceNumber') || $request->filled('customerName')) {
+            $order->description = $this->buildDescription(
+                $request->invoiceNumber ?? $order->invoice_number,
+                $request->customerName ?? $order->customer_name
+            );
         }
 
-        if ($request->has('totalAmount')) {
-            $order->total_amount = $request->totalAmount;
-        }
-
-        if ($request->has('deleted')) {
-            $order->deleted = $request->boolean('deleted');
-        }
-
-        if ($request->has('loadedUnitPhoto')) {
-            $order->loaded_unit_photo = $request->loadedUnitPhoto;
-        }
-
-        if ($request->has('deliveryEvidencePhoto')) {
-            $order->delivery_evidence_photo = $request->deliveryEvidencePhoto;
-        }
-
-        if ($request->has('loadedPhotoTimestamp')) {
-            $order->loaded_photo_timestamp = $request->loadedPhotoTimestamp;
-        }
-
-        if ($request->has('deliveredPhotoTimestamp')) {
-            $order->delivered_photo_timestamp = $request->deliveredPhotoTimestamp;
-        }
-
-        if ($request->has('deliveryNotes')) {
-            $order->delivery_notes = $request->deliveryNotes;
-        }
-
-        if ($request->has('missingItems')) {
-            $order->missing_items = $request->missingItems;
-        }
-
-        // 2. Si el estado es 'in_route' o 'delivered', manejamos la foto
-        if ($request->hasFile('evidence')) {
-            // Borrar foto anterior si existe para no llenar el disco
-            if ($order->evidence_path) {
-                Storage::disk('public')->delete($order->evidence_path);
+        // FOTO DE UNIDAD CARGADA
+        if ($request->hasFile('loadedUnitPhoto')) {
+            if ($order->loaded_unit_photo) {
+                Storage::disk('public')->delete($order->loaded_unit_photo);
             }
 
-            // Guardar la nueva foto en storage/app/public/evidences
-            $path = $request->file('evidence')->store('evidences', 'public');
-            $order->evidence_path = $path;
+            $path = $request->file('loadedUnitPhoto')->store('loaded_units', 'public');
+            $order->loaded_unit_photo = $path;
+
+            if ($request->filled('loadedPhotoTimestamp')) {
+                $order->loaded_photo_timestamp = $request->loadedPhotoTimestamp;
+            }
+        }
+
+        // FOTO DE ENTREGA
+        if ($request->hasFile('deliveryEvidencePhoto')) {
+            if ($order->delivery_evidence_photo) {
+                Storage::disk('public')->delete($order->delivery_evidence_photo);
+            }
+
+            $path = $request->file('deliveryEvidencePhoto')->store('deliveries', 'public');
+            $order->delivery_evidence_photo = $path;
+
+            if ($request->filled('deliveredPhotoTimestamp')) {
+                $order->delivered_photo_timestamp = $request->deliveredPhotoTimestamp;
+            }
+
+            // Cambiar estado automáticamente
+            $order->status = 'Delivered';
         }
 
         $order->save();
 
         return response()->json(['data' => $order]);
     }
-    
-    /**
-     * Opcional: Eliminar orden.
-     */
+
     public function destroy(Order $order)
     {
         $order->delete();
