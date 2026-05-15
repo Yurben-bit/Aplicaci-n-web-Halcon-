@@ -31,7 +31,7 @@ class OrderController extends Controller
         };
     }
 
-    public function index()
+    public function index(Request $request) // GET /api/orders
     {
         $orders = Order::query()->latest();
 
